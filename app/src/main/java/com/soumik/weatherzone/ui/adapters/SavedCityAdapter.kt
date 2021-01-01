@@ -1,59 +1,57 @@
 package com.soumik.weatherzone.ui.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
-import com.soumik.weatherzone.R
-import com.soumik.weatherzone.data.models.Cities
+import com.soumik.weatherzone.data.models.City
+import com.soumik.weatherzone.databinding.ItemSavedCityBinding
 import com.soumik.weatherzone.utils.DiffUtilCallback
-import kotlinx.android.synthetic.main.item_saved_city.view.*
 
-
-/**
- * Created by Soumik Bhattacharjee on 9/17/2020.
- * soumikcse07@gmail.com
- * http://soumikbhatt.github.io/
- */
-class SavedCityAdapter:RecyclerView.Adapter<SavedCityAdapter.Holder>() {
+class SavedCityAdapter : RecyclerView.Adapter<SavedCityAdapter.Holder>() {
 
     val differ = AsyncListDiffer(this, DiffUtilCallback())
-    private var onItemClickListener : ((Cities)->Unit)?=null
+    private var onItemClickListener: ((City) -> Unit)? = null
 
-    fun setOnItemClickListener(listener: (Cities)->Unit){
+    fun setOnItemClickListener(listener: (City) -> Unit) {
         onItemClickListener = listener
     }
 
-    class Holder(itemView:View):RecyclerView.ViewHolder(itemView) {
-        val cityName = itemView.tv_city_name_search!!
-        val countryName = itemView.tv_country_name_search!!
-        val temperature = itemView.tv_city_temp!!
-        val foregroundView = itemView.view_foreground!!
-        val backgroundView = itemView.view_background!!
+    class Holder(
+        private val binding: ItemSavedCityBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        val cityName = binding.tvCityNameSearch
+        val countryName = binding.tvCountryNameSearch
+        val temperature = binding.tvCityTemp
+        val foregroundView = binding.viewForeground
+        val backgroundView = binding.viewBackground
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_saved_city,parent,false))
+        return Holder(
+            ItemSavedCityBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val cities = differ.currentList[position]
-        bindData(cities,holder)
+        bindData(cities, holder)
     }
 
-    private fun bindData(cities: Cities?, holder: Holder) {
+    private fun bindData(city: City?, holder: Holder) {
         holder.apply {
-            cityName.text = cities?.name
-            countryName.text = cities?.country
+            cityName.text = city?.name
+            countryName.text = city?.country
             temperature.text = ""
-            itemView.setOnClickListener { onItemClickListener?.let { it(cities!!) } }
+            itemView.setOnClickListener { onItemClickListener?.let { it(city!!) } }
         }
     }
 
     override fun getItemCount(): Int {
         return differ.currentList.size
     }
-
-
 }

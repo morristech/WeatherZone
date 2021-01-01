@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.soumik.weatherzone">
+
+    <!--
+        Android 11 package visibility changes require that apps specify which
+        set of other packages on the device that they can access.
+    -->
+    <queries>
+        <package android:name="com.google.android.apps.maps" />
+    </queries>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,19 +24,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
-        <activity android:name="com.soumik.weatherzone.ui.activities.WeatherDetailsActivity"></activity>
+        android:usesCleartextTraffic="true"
+        tools:ignore="AllowBackup,UnusedAttribute">
+        <activity android:name="com.soumik.weatherzone.ui.activities.WeatherDetailsActivity" />
         <activity android:name="com.soumik.weatherzone.ui.activities.ForecastActivity" />
         <activity android:name="com.soumik.weatherzone.ui.activities.SearchActivity" />
         <activity android:name="com.soumik.weatherzone.ui.activities.SavedCityActivity" />
-        <activity android:name="com.soumik.weatherzone.ui.activities.SplashScreenActivity">
+        <activity
+            android:name="com.soumik.weatherzone.ui.activities.MainActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.soumik.weatherzone.ui.activities.MainActivity" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${mapsApiKey}" />
     </application>
 
 </manifest>

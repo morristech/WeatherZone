@@ -1,13 +1,7 @@
 package com.soumik.weatherzone.data.models
+
 import com.google.gson.annotations.SerializedName
 
-
-
-/**
- * Created by Soumik Bhattacharjee on 9/13/2020.
- * soumikcse07@gmail.com
- * http://soumikbhatt.github.io/
- */
 data class ResponseWeather(
     @SerializedName("base")
     val base: String,
@@ -18,9 +12,9 @@ data class ResponseWeather(
     @SerializedName("coord")
     val coord: Coord,
     @SerializedName("dt")
-    val dt: Int,
+    val dt: Long,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("main")
     val main: Main,
     @SerializedName("name")

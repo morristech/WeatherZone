@@ -7,24 +7,18 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.soumik.weatherzone.data.models.LocationData
+import com.soumik.weatherzone.data.models.Coordinates
 import com.soumik.weatherzone.utils.RequestCompleteListener
 
-
-/**
- * Created by Soumik Bhattacharjee on 9/11/2020.
- * soumikcse07@gmail.com
- * http://soumikbhatt.github.io/
- */
-class LocationProvider(context: Context): LocationProviderInterface {
+class LocationProvider(context: Context) : LocationProviderInterface {
 
     private var fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     @SuppressLint("MissingPermission")
-    override fun getUserCurrentLocation(callback: RequestCompleteListener<LocationData>) {
+    override fun getUserCurrentLocation(callback: RequestCompleteListener<Coordinates>) {
         fusedLocationClient.lastLocation.addOnSuccessListener {
             it.also { callback.onRequestCompleted(setLocationData(it)) }
-        } .addOnFailureListener {
+        }.addOnFailureListener {
             callback.onRequestFailed(it.localizedMessage)
         }
 
@@ -49,8 +43,8 @@ class LocationProvider(context: Context): LocationProviderInterface {
         )
     }
 
-    private fun setLocationData(location: Location):LocationData {
-        return LocationData(longitude = location.longitude, latitude = location.latitude)
+    private fun setLocationData(location: Location): Coordinates {
+        return Coordinates(longitude = location.longitude, latitude = location.latitude)
     }
 
     companion object {

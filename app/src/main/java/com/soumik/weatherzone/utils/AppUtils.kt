@@ -17,75 +17,74 @@ import com.soumik.weatherzone.BuildConfig
 import com.soumik.weatherzone.R
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.round
 
-
-/**
- * Created by Soumik Bhattacharjee on 9/5/2020.
- * soumikcse07@gmail.com
- */
-
-fun debug(tag:String,message:String) {
-    if (BuildConfig.DEBUG) Log.d(tag,message)
-}
-fun error(tag:String,message:String) {
-    if (BuildConfig.DEBUG) Log.e(tag,message)
-}
-fun info(tag:String,message:String) {
-    if (BuildConfig.DEBUG) Log.i(tag,message)
+fun debug(tag: String, message: String) {
+    if (BuildConfig.DEBUG) Log.d(tag, message)
 }
 
-fun lightStatusBar(activity:Activity,value:Boolean){
-    if (value){
+fun error(tag: String, message: String) {
+    if (BuildConfig.DEBUG) Log.e(tag, message)
+}
+
+fun info(tag: String, message: String) {
+    if (BuildConfig.DEBUG) Log.i(tag, message)
+}
+
+fun lightStatusBar(activity: Activity, value: Boolean) {
+    if (value) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             activity.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
     }
 }
 
-fun showToast(context:Context,message:String,length:Int) {
-    Toast.makeText(context,message,length).show()
+fun showToast(context: Context, message: String, length: Int) {
+    Toast.makeText(context, message, length).show()
 }
 
-fun isNetworkActive(context: Context):Boolean{
-    val isConnected:Boolean
+fun Double.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
+}
+
+fun Double.format(digits: Int) = String.format("%.${digits}f", this)
+
+fun isNetworkActive(context: Context): Boolean {
+    val isConnected: Boolean
     val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val activeNetwork = cm.activeNetworkInfo
 
-    isConnected = activeNetwork !=null
+    isConnected = activeNetwork != null
     return isConnected
 }
 
-fun Int.unixTimestampToDateTimeString() : String {
-
+fun Long.unixTimestampToDateTimeString(): String {
     try {
         val calendar = Calendar.getInstance()
-        calendar.timeInMillis = this*1000.toLong()
+        calendar.timeInMillis = this * 1000.toLong()
 
         val outputDateFormat = SimpleDateFormat("dd MMM, yyyy - hh:mm a", Locale.ENGLISH)
         outputDateFormat.timeZone = TimeZone.getDefault() // user's default time zone
         return outputDateFormat.format(calendar.time)
-
     } catch (e: Exception) {
         e.printStackTrace()
     }
-
     return this.toString()
 }
 
-fun Int.unixTimestampToTimeString() : String {
-
+fun Int.unixTimestampToTimeString(): String {
     try {
         val calendar = Calendar.getInstance()
-        calendar.timeInMillis = this*1000.toLong()
+        calendar.timeInMillis = this * 1000.toLong()
 
         val outputDateFormat = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
         outputDateFormat.timeZone = TimeZone.getDefault()
         return outputDateFormat.format(calendar.time)
-
     } catch (e: Exception) {
         e.printStackTrace()
     }
-
     return this.toString()
 }
 
@@ -108,15 +107,21 @@ fun showMoreOptions(context: Context) {
 
     val storeLink = "https://play.google.com/store/apps/details?id=${context.packageName}"
     share.setOnClickListener {
-        Utills.share(context,context.getString(R.string.app_name),"Hey! You must try this amazing Weather Zone App: $storeLink","Share Now Via")
+        Utills.share(
+            context,
+            context.getString(R.string.app_name),
+            "Hey! You must try this amazing Weather Zone App: $storeLink",
+            "Share Now Via"
+        )
         dialog.dismiss()
     }
     feedback.setOnClickListener {
-        Utills.feedback(context,context.getString(R.string.app_email),
+        Utills.feedback(
+            context, context.getString(R.string.app_email),
             "Feedback for ${context.getString(R.string.app_name)} v${BuildConfig.VERSION_NAME}",
-            "\n\n\n\n---Don't remove this part (These information will make our life easier)---\nManufacturer: ${Build.MANUFACTURER}\nModel: ${Build.MODEL}\nAndroid Version: ${Build.VERSION.SDK_INT}")
+            "\n\n\n\n---Don't remove this part (These information will make our life easier)---\nManufacturer: ${Build.MANUFACTURER}\nModel: ${Build.MODEL}\nAndroid Version: ${Build.VERSION.SDK_INT}"
+        )
         dialog.dismiss()
     }
-
     dialog.show()
 }

@@ -2,111 +2,129 @@ package com.soumik.weatherzone.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.airbnb.lottie.LottieAnimationView
 import com.soumik.weatherzone.R
 import com.soumik.weatherzone.data.models.ResponseWeather
 import com.soumik.weatherzone.data.repository.remote.WeatherRepository
+import com.soumik.weatherzone.databinding.ActivityWeatherDetailsBinding
+import com.soumik.weatherzone.databinding.LayoutAdditionalWeatherInfoBinding
+import com.soumik.weatherzone.databinding.LayoutInfoBinding
 import com.soumik.weatherzone.utils.Status
 import com.soumik.weatherzone.utils.unixTimestampToTimeString
-import com.soumik.weatherzone.viewmodel.MyViewModel
-import kotlinx.android.synthetic.main.activity_weather_details.anim_failed
-import kotlinx.android.synthetic.main.activity_weather_details.anim_network
-import kotlinx.android.synthetic.main.activity_weather_details.inc_info_weather
-import kotlinx.android.synthetic.main.activity_weather_details.progressBar
-import kotlinx.android.synthetic.main.layout_info.*
-import kotlinx.android.synthetic.main.layout_additional_weather_info.*
+import com.soumik.weatherzone.viewmodel.WeatherModel
 
 class WeatherDetailsActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: MyViewModel
-    private lateinit var weatherRepo: WeatherRepository
-    private var cityID:String?=null
-    private var lat:String?=null
-    private var lon:String?=null
-    private var city:String?=null
+    private lateinit var weatherDetailsBinding: ActivityWeatherDetailsBinding
+    private lateinit var includedInfoBinding: LayoutInfoBinding
+    private lateinit var additionalInfoBinding: LayoutAdditionalWeatherInfoBinding
 
-    companion object{
+    private lateinit var viewModel: WeatherModel
+    private lateinit var weatherRepo: WeatherRepository
+
+    private lateinit var progressBar: LottieAnimationView
+    private lateinit var animationNetworkView: LottieAnimationView
+    private lateinit var animationFailedView: LottieAnimationView
+
+    private var cityID: String? = null
+    private var latitudeString: String? = null
+    private var longitudeString: String? = null
+    private var cityName: String? = null
+
+    companion object {
         const val CITY_ID = "city_id"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_weather_details)
 
-        viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
+        weatherDetailsBinding = ActivityWeatherDetailsBinding.inflate(layoutInflater)
+        val view = weatherDetailsBinding.root
+        setContentView(view)
+
+        includedInfoBinding = weatherDetailsBinding.incInfoWeather
+        additionalInfoBinding = includedInfoBinding.incAdditionalWeatherInfo
+
+        viewModel = ViewModelProvider(this@WeatherDetailsActivity).get(WeatherModel::class.java)
         weatherRepo = WeatherRepository()
 
-        iv_add.setImageResource(R.drawable.ic_arrow_back_white)
-        iv_more.visibility = View.GONE
-
         cityID = intent.getStringExtra(CITY_ID)
+        viewModel.getWeatherByCityID(weatherRepo, cityID!!)
 
-        viewModel.getWeatherByCityID(weatherRepo,cityID!!)
+        progressBar = weatherDetailsBinding.progressBar
+        animationNetworkView = weatherDetailsBinding.animNetwork
+        animationFailedView = weatherDetailsBinding.animFailed
+
+        includedInfoBinding.ivAdd.setImageResource(R.drawable.ic_arrow_back_white)
+        includedInfoBinding.ivMore.visibility = View.GONE
 
         setUpObservers()
-
     }
 
     private fun setUpObservers() {
-        viewModel.weatherByCityID.observe(this,{
-            it?.let {resource ->
-                when(resource.status){
-                    Status.SUCCESS->{
-                        inc_info_weather.visibility=View.VISIBLE
-                        progressBar.visibility=View.GONE
-                        anim_failed.visibility=View.GONE
-                        anim_network.visibility=View.GONE
-                        setUpUI(it.data)
-                    }
-                    Status.ERROR->{
-                       showFailedView(it.message)
-                    }
-                    Status.LOADING->{
-                        progressBar.visibility=View.VISIBLE
-                        anim_failed.visibility=View.GONE
-                        anim_network.visibility=View.GONE
+        viewModel.weatherByCityID.observe(
+            this@WeatherDetailsActivity,
+            {
+                it?.let { resource ->
+                    when (resource.status) {
+                        Status.SUCCESS -> {
+                            includedInfoBinding.root.visibility = View.VISIBLE
+                            progressBar.visibility = View.GONE
+                            animationNetworkView.visibility = View.GONE
+                            animationFailedView.visibility = View.GONE
+                            setUpUI(it.data)
+                        }
+                        Status.ERROR -> {
+                            showFailedView(it.message)
+                        }
+                        Status.LOADING -> {
+                            progressBar.visibility = View.VISIBLE
+                            animationFailedView.visibility = View.GONE
+                            animationNetworkView.visibility = View.GONE
+                        }
                     }
                 }
             }
-        })
+        )
     }
 
     private fun showFailedView(message: String?) {
-        progressBar.visibility=View.GONE
-        inc_info_weather.visibility=View.GONE
-
-        when(message){
+        progressBar.visibility = View.GONE
+        includedInfoBinding.root.visibility = View.GONE
+        when (message) {
             "Network Failure" -> {
-                anim_failed.visibility=View.GONE
-                anim_network.visibility=View.VISIBLE
+                animationFailedView.visibility = View.GONE
+                animationNetworkView.visibility = View.VISIBLE
             }
-            else ->{
-                anim_network.visibility=View.GONE
-                anim_failed.visibility=View.VISIBLE
+            else -> {
+                animationNetworkView.visibility = View.GONE
+                animationFailedView.visibility = View.VISIBLE
             }
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun setUpUI(data: ResponseWeather?) {
-        tv_temp.text = data?.main?.temp.toString()
-        tv_city_name.text = data?.name
-        tv_weather_condition.text = data?.weather!![0].main
-        tv_sunrise_time.text = data.sys.sunrise.unixTimestampToTimeString()
-        tv_sunset_time.text = data.sys.sunset.unixTimestampToTimeString()
-        tv_real_feel_text.text = "${data.main.feelsLike}${getString(R.string.degree_celsius_symbol)}"
-        tv_cloudiness_text.text = "${data.clouds.all}%"
-        tv_wind_speed_text.text = "${data.wind.speed}m/s"
-        tv_humidity_text.text = "${data.main.humidity}%"
-        tv_pressure_text.text = "${data.main.pressure}hPa"
-        tv_visibility_text.text = "${data.visibility}M"
+        includedInfoBinding.tvTemp.text = data?.main?.temp.toString()
+        includedInfoBinding.tvCityName.text = data?.name
+        includedInfoBinding.tvWeatherCondition.text = data?.weather!![0].main
+        additionalInfoBinding.tvSunriseTime.text = data.sys.sunrise.unixTimestampToTimeString()
+        additionalInfoBinding.tvSunsetTime.text = data.sys.sunset.unixTimestampToTimeString()
+        additionalInfoBinding.tvRealFeelText.text =
+            "${data.main.feelsLike}${getString(R.string.degree_celsius_symbol)}"
+        additionalInfoBinding.tvCloudinessText.text = "${data.clouds.all}%"
+        additionalInfoBinding.tvWindSpeedText.text = "${data.wind.speed}m/s"
+        additionalInfoBinding.tvHumidityText.text = "${data.main.humidity}%"
+        additionalInfoBinding.tvPressureText.text = "${data.main.pressure}hPa"
+        additionalInfoBinding.tvVisibilityText.text = "${data.visibility}M"
 
-        lat = data.coord.lat.toString()
-        lon = data.coord.lon.toString()
-        city = data.name
+        latitudeString = data.coord.lat.toString()
+        longitudeString = data.coord.lon.toString()
+        cityName = data.name
     }
 
     fun onAddButtonClicked(view: View) {
@@ -115,10 +133,12 @@ class WeatherDetailsActivity : AppCompatActivity() {
     }
 
     fun onForecastButtonClicked(view: View) {
-        startActivity(Intent(this@WeatherDetailsActivity,ForecastActivity::class.java)
-            .putExtra(ForecastActivity.LATITUDE,lat)
-            .putExtra(ForecastActivity.LONGITUDE,lon)
-            .putExtra(ForecastActivity.CITY_NAME,city))
+        startActivity(
+            Intent(this@WeatherDetailsActivity, ForecastActivity::class.java)
+                .putExtra(ForecastActivity.LATITUDE, latitudeString)
+                .putExtra(ForecastActivity.LONGITUDE, longitudeString)
+                .putExtra(ForecastActivity.CITY_NAME, cityName)
+        )
         finish()
     }
 

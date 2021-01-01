@@ -1,13 +1,7 @@
 package com.soumik.weatherzone.data.models
+
 import com.google.gson.annotations.SerializedName
 
-
-
-/**
- * Created by Soumik Bhattacharjee on 9/23/2020.
- * soumikcse07@gmail.com
- * http://soumikbhatt.github.io/
- */
 data class ResponseWeatherForecast(
     @SerializedName("daily")
     val daily: List<Daily>,
@@ -27,7 +21,7 @@ data class Daily(
     @SerializedName("dew_point")
     val dewPoint: Double,
     @SerializedName("dt")
-    val dt: Int,
+    val dt: Long,
     @SerializedName("feels_like")
     val feelsLike: FeelsLike,
     @SerializedName("humidity")
@@ -86,7 +80,7 @@ data class WeatherF(
     @SerializedName("icon")
     val icon: String,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("main")
     val main: String
 )

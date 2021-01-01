@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="100dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
     android:layout_marginHorizontal="16dp"
     android:layout_marginTop="5dp"
     android:layout_marginBottom="3dp">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/view_foreground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardCornerRadius="16dp"
-        android:id="@+id/view_foreground"
-        app:cardElevation="5dp"
-        app:cardBackgroundColor="@color/colorPrimary">
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="6dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -27,13 +26,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:fontFamily="@font/pt_bold"
-                android:text="@string/degree_celsius_symbol_with_temp2"
                 android:textColor="@color/light_grey"
                 android:textSize="32sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/degree_celsius_symbol_with_temp2" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -46,22 +45,22 @@
 
                 <TextView
                     android:id="@+id/tv_city_name_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:fontFamily="@font/pt_bold"
                     android:textColor="@color/light_grey"
                     android:textSize="18sp"
-                    tools:text="Moulvibazar"
                     android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    tools:text="Amsterdam" />
 
                 <TextView
                     android:id="@+id/tv_country_name_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:fontFamily="@font/pt_regular"
                     android:textColor="@color/light_grey"
                     android:textSize="14sp"
-                    tools:text="BD"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    tools:text="BD" />
 
             </LinearLayout>
 
@@ -69,27 +68,24 @@
 
     </androidx.cardview.widget.CardView>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/view_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_red_round">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/view_background"
-            android:background="@drawable/bg_red_round">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/delete_icon"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="@string/desc_delete"
+            android:src="@drawable/ic_delete"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/delete_icon"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/ic_delete"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/desc_delete" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

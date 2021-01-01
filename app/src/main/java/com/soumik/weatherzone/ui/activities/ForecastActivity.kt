@@ -1,104 +1,129 @@
 package com.soumik.weatherzone.ui.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.soumik.weatherzone.R
+import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import com.soumik.weatherzone.data.repository.remote.WeatherRepository
+import com.soumik.weatherzone.databinding.ActivityForecastBinding
+import com.soumik.weatherzone.databinding.LayoutToolbarBinding
 import com.soumik.weatherzone.ui.adapters.ForecastAdapter
 import com.soumik.weatherzone.utils.Status
 import com.soumik.weatherzone.utils.lightStatusBar
-import com.soumik.weatherzone.viewmodel.MyViewModel
-import kotlinx.android.synthetic.main.activity_forecast.*
-import kotlinx.android.synthetic.main.activity_forecast.anim_failed
-import kotlinx.android.synthetic.main.activity_forecast.anim_network
-import kotlinx.android.synthetic.main.activity_forecast.progressBar
-import kotlinx.android.synthetic.main.layout_toolbar.*
+import com.soumik.weatherzone.viewmodel.WeatherModel
 
 class ForecastActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: MyViewModel
+    private lateinit var forecastBinding: ActivityForecastBinding
+    private lateinit var toolbarBinding: LayoutToolbarBinding
+
+    private lateinit var viewModel: WeatherModel
     private lateinit var repository: WeatherRepository
-    private lateinit var mAdapter: ForecastAdapter
-    private var lat:String?=null
-    private var lon:String?=null
-    private var city:String?=null
+    private lateinit var forecastAdapter: ForecastAdapter
+
+    private lateinit var rvForecast: RecyclerView
+    private lateinit var tvErrorMessage: TextView
+    private lateinit var progressBar: LottieAnimationView
+    private lateinit var animationNetworkView: LottieAnimationView
+    private lateinit var animationFailedView: LottieAnimationView
+
+    private var latitude: Double? = null
+    private var longitude: Double? = null
+    private var cityName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor=resources.getColor(android.R.color.white)
-        lightStatusBar(this,true)
-        setContentView(R.layout.activity_forecast)
+        window.statusBarColor = resources.getColor(android.R.color.white)
+        lightStatusBar(this, true)
 
+        forecastBinding = ActivityForecastBinding.inflate(layoutInflater)
+        val view = forecastBinding.root
+        setContentView(view)
 
-        viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
+        toolbarBinding = forecastBinding.toolbarLayout
+
+        viewModel = ViewModelProvider(this).get(WeatherModel::class.java)
         repository = WeatherRepository()
-        mAdapter = ForecastAdapter()
+        forecastAdapter = ForecastAdapter()
 
-        lat = intent.getStringExtra(LATITUDE)
-        lon = intent.getStringExtra(LONGITUDE)
-        city = intent.getStringExtra(CITY_NAME)
+        latitude = intent.getDoubleExtra(LATITUDE, Double.NEGATIVE_INFINITY)
+        longitude = intent.getDoubleExtra(LONGITUDE, Double.NEGATIVE_INFINITY)
+        cityName = intent.getStringExtra(CITY_NAME)
 
-        tv_tool_title.text = city
+        rvForecast = forecastBinding.rvForecast
+        tvErrorMessage = forecastBinding.tvErrorMsg
+        progressBar = forecastBinding.progressBar
+        animationNetworkView = forecastBinding.animNetwork
+        animationFailedView = forecastBinding.animFailed
 
-        if (lat!=null && lon!=null) viewModel.getWeatherForecast(repository,lat!!,lon!!,EXCLUDE)
+        toolbarBinding.tvToolTitle.text = cityName
+
+        if (latitude != null && longitude != null) viewModel.getWeatherForecast(
+            repository,
+            latitude!!,
+            longitude!!,
+            EXCLUDE
+        )
 
         setUpRecyclerView()
         setUpObservers()
-
     }
 
     private fun setUpObservers() {
-        viewModel.weatherForecast.observe(this,{
-            it?.let {resource ->
-                when(resource.status) {
-                    Status.SUCCESS-> {
-                        progressBar.visibility=View.GONE
-                        tv_error_msg.visibility=View.GONE
-                        anim_failed.visibility=View.GONE
-                        anim_network.visibility=View.GONE
-                        rv_forecast.visibility=View.VISIBLE
-                        mAdapter.differ.submitList(it.data?.daily)
-                    }
-                    Status.ERROR-> {
-                        showFailedView(it.message)
-                    }
-                    Status.LOADING-> {
-                        progressBar.visibility=View.VISIBLE
-                        tv_error_msg.visibility=View.GONE
-                        rv_forecast.visibility=View.GONE
-                        anim_failed.visibility=View.GONE
-                        anim_network.visibility=View.GONE
+        viewModel.weatherForecast.observe(
+            this,
+            {
+                it?.let { resource ->
+                    when (resource.status) {
+                        Status.SUCCESS -> {
+                            progressBar.visibility = View.GONE
+                            tvErrorMessage.visibility = View.GONE
+                            animationFailedView.visibility = View.GONE
+                            animationNetworkView.visibility = View.GONE
+                            rvForecast.visibility = View.VISIBLE
+                            forecastAdapter.differ.submitList(it.data?.daily)
+                        }
+                        Status.ERROR -> {
+                            showFailedView(it.message)
+                        }
+                        Status.LOADING -> {
+                            progressBar.visibility = View.VISIBLE
+                            tvErrorMessage.visibility = View.GONE
+                            rvForecast.visibility = View.GONE
+                            animationFailedView.visibility = View.GONE
+                            animationNetworkView.visibility = View.GONE
+                        }
                     }
                 }
             }
-        })
+        )
     }
 
     private fun showFailedView(message: String?) {
-        progressBar.visibility=View.GONE
-        tv_error_msg.visibility=View.GONE
-        rv_forecast.visibility=View.GONE
-
-        when(message){
+        progressBar.visibility = View.GONE
+        tvErrorMessage.visibility = View.GONE
+        rvForecast.visibility = View.GONE
+        when (message) {
             "Network Failure" -> {
-                anim_failed.visibility=View.GONE
-                anim_network.visibility=View.VISIBLE
+                animationFailedView.visibility = View.GONE
+                animationNetworkView.visibility = View.VISIBLE
             }
-            else ->{
-                anim_network.visibility=View.GONE
-                anim_failed.visibility=View.VISIBLE
+            else -> {
+                animationNetworkView.visibility = View.GONE
+                animationFailedView.visibility = View.VISIBLE
             }
         }
     }
 
     private fun setUpRecyclerView() {
-        rv_forecast.apply {
+        rvForecast.apply {
             layoutManager = LinearLayoutManager(this@ForecastActivity)
             setHasFixedSize(true)
-            adapter = mAdapter
+            adapter = forecastAdapter
         }
     }
 
@@ -106,7 +131,6 @@ class ForecastActivity : AppCompatActivity() {
         onBackPressed()
         finish()
     }
-
 
     companion object {
         const val LATITUDE = "lat"

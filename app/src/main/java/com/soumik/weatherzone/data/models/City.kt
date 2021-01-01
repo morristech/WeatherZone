@@ -1,39 +1,34 @@
 package com.soumik.weatherzone.data.models
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.soumik.weatherzone.utils.TABLE_CITY
-
-
-/**
- * Created by Soumik Bhattacharjee on 9/16/2020.
- * soumikcse07@gmail.com
- * http://soumikbhatt.github.io/
- */
+import kotlinx.parcelize.Parcelize
 
 @Entity(
     tableName = TABLE_CITY
 )
-data class Cities (
+@Parcelize
+data class City(
     @PrimaryKey(autoGenerate = false)
-    var id:Int?=null,
+    @ColumnInfo(name = "id")
+    var id: Long,
 
     @ColumnInfo(name = "name")
-    var name:String?=null,
+    var name: String? = "",
 
     @ColumnInfo(name = "state")
-    var state:String?=null,
+    var state: String = "",
 
     @ColumnInfo(name = "country")
-    var country:String?=null,
+    var country: String? = "",
 
-    @ColumnInfo(name = "coord_lon")
-    var lon:Double?=null,
-
-    @ColumnInfo(name = "coord_lat")
-    var lat:Double?=null,
+    @Embedded
+    val coordinates: Coordinates,
 
     @ColumnInfo(name = "isSaved")
-    var isSaved:Int?=null
-)
+    var isSaved: Int? = null
+): Parcelable
